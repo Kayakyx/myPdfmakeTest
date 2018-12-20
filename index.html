@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>js生成PDF</title>
+    <link rel="stylesheet" href="./css/table.css">
+    <script src="js/pdfmake.js"></script>
+    <script src="js/vfs_fonts.js"></script>
+    <script>
+        //演示一： 自己定义pdf内容
+        function down() {
+            var dd = {
+                //
+                // content: [
+                //     '中英文测试',
+                //     'Another paragraph, this time a little bit longer to make sure, this line will be divided into at least two lines'
+                // ],
+                // info: {
+                //     title: 'awesome Document',
+                //     author: 'john doe',
+                //     subject: 'subject of document',
+                //     keywords: 'keywords for document',
+                // },
+                // content:  'This is an sample PDF printed with pdfMake',
+
+                //pdf 中要显示的内容要写在 content中
+                content: [
+
+                    // if you don't need styles, you can use a simple string to define a paragraph 如果不需要样式，可以使用简单的字符串定义段落
+                    {text: '示例： 直接使用字符串定义段落', color: 'red'},
+                    'This is a standard paragraph, using default style---这是一个标准的段落，使用默认样式',
+
+                    // using a { text: '...' } object lets you set styling properties  //使用{text: ''} 对象允许您设置样式属性
+                    {text: '示例: 通过对象的方式定义段落,实现设置样式', color: 'red'},
+                    { text: 'This paragraph will have a bigger font---这段文字的字体要大一些,使用的对象方式定义的段落，并且定义font-size: 15px', fontSize: 15 },
+
+
+
+                    // if you set the value of text to an array instead of a string, you'll be able to style any part individually
+                    //如果您将文本的值设置为数组而不是字符串，那么您将能够单独设置任何部分的样式
+                    {text: '示例：下面是一个使用text数组定义的段落，实现单独设置部分的样式', color: 'red'},
+                    {
+                        text: [
+                            'This paragraph is defined as an array of elements to make it possible to(这是这个段落的第一部分普通字符串)',
+                            { text: 'restyle part of it and make it bigger(这是这个段落的第二部分，单独定义了font-size:15px,重新设计它的一部分，使它更大)', fontSize: 15 },
+                            'than the rest.（这是这个段落的第三个部分普通字符串）'
+                        ]
+                    },
+
+
+
+                    {text: '示例：无序列表', color: 'red'},
+                    'Bulleted list example:', //无序列表
+                    {
+                        // to treat a paragraph as a bulleted list, set an array of items under the ul key
+                        ul: [
+                            'Item 1',
+                            'Item 2',
+                            'Item 3',
+                            { text: 'Item 4', bold: true },
+                        ]
+                    },
+
+                    {text: '示例：有序列表', color: 'red'},
+                    'Numbered list example:',    //有序列表
+                    {
+                        // for numbered lists set the ol key
+                        ol: [
+                            'Item 1',
+                            'Item 2',
+                            'Item 3'
+                        ]
+                    },
+                    {text: '示例：表格', color: 'red'},
+                    {
+                        layout: 'lightHorizontalLines', // optional   //布局选项
+                        table: {
+                            // headers are automatically repeated if the table spans over multiple pages（如果表跨越多个页面，则会自动重复标题）
+                            // you can declare how many rows should be treated as headers（您可以声明应该将多少行视为标题）
+                            headerRows: 1,  //第1行为标题行
+                            // widths: [ '*', 'auto', 100, '*' ],     //定义每列的宽度
+                            // widths: 'auto', //宽度根据内容变化
+                            widths: '*',  //宽度变为100%，且每列均分（*代表占据所有剩余空间）
+                            /*//这是官方示例代码
+                            body: [
+                                [ 'First', 'Second', 'Third', 'The last one' ],
+                                [ 'Value 1', 'Value 2', 'Value 3', 'Value 4' ], //使用默认样式的表行
+                                [ { text: 'Bold value', bold: true }, 'Val 2', 'Val 3', 'Val 4' ]  //通过对象的方式实现对其中一个单元格进行样式配置
+                            ],*/
+                            //自己练习示例代码
+                            body: [
+                                [ 'name', 'Chinese', 'English', 'Math' ],
+                                [ 'zhangsan', 100, 13, 45 ],
+                                [ 'lisi', 78, 64, 78 ],
+                                [ 'wangwu', 88, 21, 86 ],
+                                [ { text: 'xiaoming', bold: true, color: 'blue' }, 100, 100, 100 ],  //实现对xiaoming的  蓝色标记
+                                ['qianliu', 48, 90, 66],
+                            ]
+
+
+
+
+                        }
+                    },
+
+                    //还可以定义可重用样式的字典
+                    {text: '示例：定义和使用可重用样式的字典', color: 'red'},
+
+                    { text: 'This is a header(这是一个头，用的header样式)', style: 'header' },
+                    'No styling here, this is a standard paragraph（这一个用默认样式的段落）',
+                    { text: 'Another text（这是用个用来anotherStyle样式的段落）', style: 'anotherStyle' },
+                    { text: 'Multiple styles applied（这是一个用了header和anotherStyle样式的段落）', style: [ 'header', 'anotherStyle' ] },
+
+                    //段落的横向布局
+                    {text: '示例： 段落的横向布局', color: 'red'},
+                    'This paragraph fills full width, as there are no columns. Next paragraph however consists of three columns(由于没有列，这一段是全宽的。然而，下一段由三栏组成)',
+                    {
+                        columns: [
+                            {
+                                // auto-sized columns have their widths based on their content(自动调整大小的列的宽度取决于它们的内容)
+                                width: 'auto',
+                                text: 'First column(第1列)'
+                            },
+                            {
+                                // star-sized columns fill the remaining space（* 大小的列填充余下的空间）
+                                // if there's more than one star-column, available width is divided equally（如果有一个以上的星列，可用宽度被平均分割）
+                                width: '*',
+                                text: 'Second column(第2列)'
+                            },
+                            {
+                                // fixed width
+                                width: 100,
+                                text: 'Third column(第3列)'
+                            },
+                            {
+                                // % width
+                                width: '20%',
+                                text: 'Fourth column(第4列)'
+                            }
+                        ],
+                        // optional space between columns
+                        columnGap: 10
+                    },
+                    'This paragraph goes below all columns and has full width（这段文字在所有的栏下面，有全宽）'
+
+                    //使用自己的表格布局生成pdf 需要传入自己的表格节点
+
+
+
+
+
+                ],
+
+                //定义样式字典， 已达到样式服用
+                styles: {
+                    header: {
+                        fontSize: 22,
+                        bold: true
+                    },
+                    anotherStyle: {
+                        italics: true,  //斜体
+                        alignment: 'right' //对其方式
+                    }
+                },
+
+
+                defaultStyle: { //设置默认样式配置项
+                    font: '方正姚体'  //生成pdf时使用的字体
+                },
+
+               /* defaultStyle: {
+                    font: '方正姚体',
+                    fontSize: 15, //字体大小
+                    bold: true //是否加粗
+                }*/
+            };
+            pdfMake.fonts = {  //定义字体
+                Roboto: {  // Roboto 是自己给这个字体起的名字，随便起 ， 这个字体是 pdfmake 自带的字体，不支持中文
+                    normal: 'Roboto-Regular.ttf',
+                    bold: 'Roboto-Medium.ttf',
+                    italics: 'Roboto-Italic.ttf',
+                    bolditalics: 'Roboto-Italic.ttf'
+                },
+                方正姚体: {  //这个是 自己找到的 重新用webpage 把方正姚体  .ttf文件 打包生成的js文件， 这里我随便起的名字为 '方正姚体'，因为因为js支持中文名变量。我是为了好区别。
+                    normal: 'FZYTK.TTF',
+                    bold: 'FZYTK.TTF',
+                    italics: 'FZYTK.TTF',
+                    bolditalics: 'FZYTK.TTF',
+                }
+            };
+            //pdfmake自带的下载pdf方法：
+            pdfMake.createPdf(dd).download();
+        }
+
+
+
+    </script>
+</head>
+<body>
+
+
+    <button onclick="down()">下载</button>
+
+
+    <!-- 本例无用代码 -->
+<!--     
+<table>
+    <thead>
+        <tr>
+            <th>部门</th>
+            <th>个人奖</th>
+            <th>团队奖</th>
+            <th>项目奖</th>
+            <th>专项奖</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>销售部</td>
+            <td>3</td>
+            <td>4</td>
+            <td>8</td>
+            <td>7</td>
+        </tr>
+        <tr>
+            <td>客服部</td>
+            <td>3</td>
+            <td>5</td>
+            <td>8</td>
+            <td>77</td>
+        </tr>
+        <tr>
+            <td>技术部</td>
+            <td>3</td>
+            <td>3</td>
+            <td>8</td>
+            <td>7</td>
+        </tr>
+        <tr>
+            <td>财务部</td>
+            <td>4</td>
+            <td>4</td>
+            <td>7</td>
+            <td>1</td>
+        </tr>
+
+    </tbody>
+
+</table>
+
+ -->
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
